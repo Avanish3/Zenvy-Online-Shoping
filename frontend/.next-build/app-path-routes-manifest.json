@@ -1,0 +1,20 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/account/orders/page": "/account/orders",
+  "/account/wishlist/page": "/account/wishlist",
+  "/account/profile/page": "/account/profile",
+  "/admin/page": "/admin",
+  "/cart/page": "/cart",
+  "/checkout/page": "/checkout",
+  "/checkout/success/page": "/checkout/success",
+  "/compare/page": "/compare",
+  "/orders/page": "/orders",
+  "/product/[id]/page": "/product/[id]",
+  "/products/page": "/products",
+  "/profile/page": "/profile",
+  "/search/page": "/search",
+  "/products/[slug]/page": "/products/[slug]",
+  "/wishlist/page": "/wishlist",
+  "/seller/dashboard/page": "/seller/dashboard",
+  "/page": "/"
+}

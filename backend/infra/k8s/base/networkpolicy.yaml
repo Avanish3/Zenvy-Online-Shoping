@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: zenvy-backend-zero-trust
+  namespace: zenvy-production
+spec:
+  podSelector:
+    matchLabels:
+      app: zenvy-backend
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: zenvy-gateway
+        - namespaceSelector:
+            matchLabels:
+              name: istio-system
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: zenvy-data
+        - namespaceSelector:
+            matchLabels:
+              name: zenvy-events
+

@@ -1,0 +1,20 @@
+route:
+  receiver: default
+  routes:
+    - matchers:
+        - severity="critical"
+      receiver: pagerduty
+    - matchers:
+        - severity="warning"
+      receiver: slack
+
+receivers:
+  - name: default
+  - name: pagerduty
+    pagerduty_configs:
+      - routing_key: REPLACE_ME
+  - name: slack
+    slack_configs:
+      - api_url: https://hooks.slack.com/services/REPLACE/ME
+        channel: "#zenvy-alerts"
+

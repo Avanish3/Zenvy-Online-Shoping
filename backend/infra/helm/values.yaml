@@ -1,0 +1,6 @@
+image:
+  repository: ghcr.io/zenvy/backend
+  tag: latest
+
+service:
+  port: 8080

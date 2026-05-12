@@ -1,0 +1,9 @@
+{
+  "title": "ZENVY Overview",
+  "panels": [
+    { "title": "HTTP Requests", "type": "stat", "targets": [{ "expr": "zenvy_requests_total" }] },
+    { "title": "Errors", "type": "stat", "targets": [{ "expr": "zenvy_errors_total" }] },
+    { "title": "Avg Latency (ms)", "type": "stat", "targets": [{ "expr": "zenvy_request_latency_avg_ms" }] }
+  ]
+}
+

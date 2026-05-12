@@ -1,0 +1,11 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: zenvy-backend
+  namespace: zenvy-production
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: zenvy-backend
+

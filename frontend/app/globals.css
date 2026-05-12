@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f6f7fb;
+  --foreground: #111827;
+  --surface: rgba(255, 255, 255, 0.92);
+  --surface-strong: #ffffff;
+  --surface-alt: #f3f6ff;
+  --border: rgba(15, 23, 42, 0.08);
+  --text-muted: #6b7280;
+  --text-soft: #94a3b8;
+  --ring: rgba(59, 130, 246, 0.16);
+  --deal-green: #16a34a;
+  --deal-red: #dc2626;
+  --deal-amber: #d97706;
+}
+
+[data-theme="dark"] {
+  --background: #0f172a;
+  --foreground: #e5e7eb;
+  --surface: rgba(15, 23, 42, 0.92);
+  --surface-strong: #111827;
+  --surface-alt: #1e293b;
+  --border: rgba(148, 163, 184, 0.22);
+  --text-muted: #cbd5e1;
+  --text-soft: #94a3b8;
+  --ring: rgba(129, 140, 248, 0.24);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--foreground);
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.06), transparent 24%),
+    radial-gradient(circle at top right, rgba(251, 146, 60, 0.05), transparent 20%),
+    linear-gradient(180deg, #f8fafd 0%, #f1f5f9 54%, #eef2f7 100%);
+  font-family: "Segoe UI Variable Display", "Aptos", "Segoe UI", sans-serif;
+}
+
+[data-theme="dark"] body {
+  background:
+    radial-gradient(circle at top left, rgba(79, 70, 229, 0.18), transparent 20%),
+    radial-gradient(circle at top right, rgba(242, 46, 138, 0.16), transparent 18%),
+    linear-gradient(180deg, #020617 0%, #0f172a 50%, #111827 100%);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
+}
+
+@layer components {
+  .section-shell {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid var(--border);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.9) inset,
+      0 18px 55px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(16px);
+  }
+
+  [data-theme="dark"] .glass-panel {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(17, 24, 39, 0.86));
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.04) inset,
+      0 24px 60px rgba(2, 6, 23, 0.42);
+  }
+
+  .card-shell {
+    @apply rounded-[24px] border border-slate-200 bg-white p-5 transition duration-300;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.9) inset,
+      0 14px 38px rgba(15, 23, 42, 0.05);
+  }
+
+  [data-theme="dark"] .card-shell {
+    @apply border-slate-700 bg-slate-900;
+  }
+
+  .card-shell:hover {
+    transform: translateY(-3px);
+  }
+
+  .pill-chip {
+    @apply rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600;
+  }
+
+  [data-theme="dark"] .pill-chip {
+    @apply border-slate-700 bg-slate-900 text-slate-300;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-zenvy-ink px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-zenvy-ink transition hover:bg-slate-50;
+  }
+
+  [data-theme="dark"] .btn-secondary {
+    @apply border-slate-700 bg-slate-900 text-slate-100 hover:bg-slate-800;
+  }
+
+  .input-field {
+    @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition;
+    box-shadow: 0 0 0 0 var(--ring);
+  }
+
+  [data-theme="dark"] .input-field {
+    @apply border-slate-700 bg-slate-900 text-slate-100;
+  }
+
+  .input-field:focus {
+    border-color: #818cf8;
+    box-shadow: 0 0 0 4px var(--ring);
+  }
+}
+
+.title-balance {
+  text-wrap: balance;
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #2874f0 0%, #0057ff 52%, #0f3db8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.grid-mesh {
+  background-image:
+    linear-gradient(rgba(99, 102, 241, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

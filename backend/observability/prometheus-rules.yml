@@ -1,0 +1,14 @@
+groups:
+  - name: zenvy-backend
+    rules:
+      - alert: ZenvyHighErrorRate
+        expr: rate(zenvy_errors_total[5m]) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+      - alert: ZenvyHighLatency
+        expr: zenvy_request_latency_avg_ms > 1000
+        for: 10m
+        labels:
+          severity: warning
+

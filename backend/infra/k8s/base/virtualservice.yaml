@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: zenvy-backend
+  namespace: zenvy-production
+spec:
+  hosts:
+    - backend.zenvy.local
+  http:
+    - route:
+        - destination:
+            host: zenvy-backend
+            subset: stable
+          weight: 95
+        - destination:
+            host: zenvy-backend
+            subset: canary
+          weight: 5
+

@@ -1,0 +1,58 @@
+<svg width="820" height="230" viewBox="0 0 820 230" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="zenvyWordGradient" x1="176" y1="20" x2="443" y2="186" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4338CA"/>
+      <stop offset="0.5" stop-color="#D946EF"/>
+      <stop offset="1" stop-color="#FB923C"/>
+    </linearGradient>
+    <linearGradient id="zenvyAccentGradient" x1="536" y1="95" x2="723" y2="183" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E11D48"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="820" height="230" rx="28" fill="white"/>
+
+  <g transform="translate(30 18)">
+    <path
+      d="M131 24C131 12.9543 139.954 4 151 4H181C192.046 4 201 12.9543 201 24V44"
+      stroke="#0F172A"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <path
+      d="M70 63C70 48.0883 82.0883 36 97 36H236C250.912 36 263 48.0883 263 63V83C263 97.9117 250.912 110 236 110H187L107 188H228C242.912 188 255 175.912 255 161V149H107C92.0883 149 80 136.912 80 122V116L177 36H97C82.0883 36 70 48.0883 70 63Z"
+      fill="url(#zenvyWordGradient)"
+    />
+    <rect x="0" y="96" width="55" height="12" rx="6" fill="#4338CA"/>
+    <rect x="16" y="126" width="39" height="12" rx="6" fill="#4338CA"/>
+    <rect x="30" y="156" width="25" height="12" rx="6" fill="#4338CA"/>
+  </g>
+
+  <g transform="translate(316 58)">
+    <path
+      d="M0 116.563C0 107.341 7.448 99.8931 16.6699 99.8931H118.917V108.106L49.9242 177.106H118.369V185.319H16.1217V177.106L85.1144 108.106H0V116.563Z"
+      fill="#0F172A"
+    />
+    <path
+      d="M162.019 142.851C162.019 118.161 181.021 99.7368 204.754 99.7368C231.524 99.7368 248.564 119.258 248.564 145.002C248.564 147.502 248.363 150.001 247.962 152.501H180.252C183.263 166.913 195.013 177.106 211.584 177.106C222.334 177.106 231.567 173.356 239.196 166.205L245.215 173.619C236.584 181.65 225.031 185.58 210.983 185.58C183.865 185.58 162.019 167.056 162.019 142.851ZM180.453 136.594H230.783C228.372 122.719 218.716 108.944 204.553 108.944C191.758 108.944 182.999 121.736 180.453 136.594Z"
+      fill="#0F172A"
+    />
+    <path
+      d="M272.358 100.395H289.252V112.303C297.367 104.263 308.338 99.7368 320.709 99.7368C343.483 99.7368 355.37 113.879 355.37 136.341V185.319H338.475V139.973C338.475 121.046 330.069 108.944 314.469 108.944C303.402 108.944 294.658 115.189 289.252 123.223V185.319H272.358V100.395Z"
+      fill="#0F172A"
+    />
+    <path
+      d="M378.194 100.395H396.738L430.892 166.732L465.046 100.395H483.388L440.127 185.58H421.455L378.194 100.395Z"
+      fill="#D61F9A"
+    />
+    <path
+      d="M491.954 100.395H510.295L539.832 164.661L569.166 100.395H587.507L532.24 216H513.899L531.756 179.65L491.954 100.395Z"
+      fill="url(#zenvyAccentGradient)"
+    />
+  </g>
+
+  <text x="316" y="212" fill="#334155" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" letter-spacing="7.5">
+    SHOP MORE. ENJOY MORE.
+  </text>
+</svg>

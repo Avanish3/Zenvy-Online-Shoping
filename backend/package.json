@@ -1,0 +1,28 @@
+{
+  "name": "zenvy-backend",
+  "version": "1.0.0",
+  "description": "Backend starter for the ZENVY e-commerce platform",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "start:dev": "node src/server.js",
+    "dev": "node src/server.js",
+    "start:gateway": "node services/gateway/server.js",
+    "start:auth": "node services/auth/server.js",
+    "start:orders": "node services/orders/server.js",
+    "start:payments": "node services/payments/server.js",
+    "start:logistics": "node services/logistics/server.js",
+    "start:ai": "node services/ai/server.js",
+    "test": "node test/run-tests.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@fastify/swagger": "^9.7.0",
+    "@fastify/swagger-ui": "^5.2.6",
+    "fastify": "^5.8.5",
+    "pg": "^8.20.0",
+    "ws": "^8.20.0"
+  }
+}

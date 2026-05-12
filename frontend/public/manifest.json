@@ -1,0 +1,16 @@
+{
+  "name": "ZENVY - Shop Smarter",
+  "short_name": "ZENVY",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f8fc",
+  "theme_color": "#111d5a",
+  "icons": [
+    {
+      "src": "/zenvy-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

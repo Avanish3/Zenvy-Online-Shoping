@@ -1,0 +1,25 @@
+<svg width="280" height="280" viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="zenvyMarkGradient" x1="52" y1="48" x2="220" y2="228" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4338CA"/>
+      <stop offset="0.56" stop-color="#EC2891"/>
+      <stop offset="1" stop-color="#FF9A3D"/>
+    </linearGradient>
+  </defs>
+
+  <path
+    d="M102 58C102 34.804 120.804 16 144 16C167.196 16 186 34.804 186 58V86"
+    stroke="#0F1C4D"
+    stroke-width="12"
+    stroke-linecap="round"
+  />
+
+  <path
+    d="M73 104C73 89.641 84.641 78 99 78H202C216.359 78 228 89.641 228 104V118C228 127.323 223.044 135.942 214.998 140.624L136.783 186.142H205C220.464 186.142 233 198.678 233 214.142V214.142C233 229.606 220.464 242.142 205 242.142H98C82.536 242.142 70 229.606 70 214.142V199.736C70 190.171 74.872 181.264 82.931 176.093L162.447 125.07H96C83.2975 125.07 73 114.772 73 102.07V104Z"
+    fill="url(#zenvyMarkGradient)"
+  />
+
+  <rect x="18" y="134" width="52" height="10" rx="5" fill="#4338CA"/>
+  <rect x="34" y="160" width="36" height="10" rx="5" fill="#4338CA"/>
+  <rect x="48" y="186" width="22" height="10" rx="5" fill="#4338CA"/>
+</svg>
