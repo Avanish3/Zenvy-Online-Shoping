@@ -103,7 +103,7 @@
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "C:\\Zenvy\\frontend",
+    "outputFileTracingRoot": "C:\\cognexia\\Zenvy-Online-Shoping\\frontend",
     "experimental": {
       "useSkewCookie": false,
       "cacheLife": {
@@ -293,7 +293,7 @@
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.ts",
     "turbopack": {
-      "root": "C:\\Zenvy\\frontend"
+      "root": "C:\\cognexia\\Zenvy-Online-Shoping\\frontend"
     },
     "_originalRewrites": {
       "beforeFiles": [
@@ -306,7 +306,7 @@
       "fallback": []
     }
   },
-  "appDir": "C:\\Zenvy\\frontend",
+  "appDir": "C:\\cognexia\\Zenvy-Online-Shoping\\frontend",
   "relativeAppDir": "",
   "files": [
     ".next-build\\routes-manifest.json",

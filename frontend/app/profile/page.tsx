@@ -1,11 +1,19 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { Eye, EyeOff, LogOut, ShieldCheck, Sparkles } from "lucide-react";
+import { FormEvent, useEffect, useState } from "react";
+import { Bell, Crown, Eye, EyeOff, Gift, LogOut, ShieldCheck, Sparkles } from "lucide-react";
+import { useDailyStreak } from "@/hooks/useDailyStreak";
 import { login, register } from "@/services/authService";
+import {
+  getLoyaltySummary,
+  getUserNotifications,
+  markNotificationRead,
+} from "@/services/commerceSignalsService";
 import { unwrapAxiosError } from "@/services/api";
 import { useAuthStore } from "@/store/authStore";
+import { useUiStore } from "@/store/uiStore";
 import { useWishlistStore } from "@/store/wishlistStore";
+import type { LoyaltySummary, UserNotification } from "@/types";
 
 export default function ProfilePage() {
   const user = useAuthStore((state) => state.user);
@@ -13,11 +21,54 @@ export default function ProfilePage() {
   const logout = useAuthStore((state) => state.logout);
   const tier = useAuthStore((state) => state.tier);
   const wishlistCount = useWishlistStore((state) => state.items.length);
+  const addToast = useUiStore((state) => state.addToast);
+  const streak = useDailyStreak();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [dailyRewardClaimed, setDailyRewardClaimed] = useState(false);
+  const [loyalty, setLoyalty] = useState<LoyaltySummary | null>(null);
+  const [notifications, setNotifications] = useState<UserNotification[]>([]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const today = new Date().toDateString();
+    setDailyRewardClaimed(window.localStorage.getItem("zenvy-daily-reward") === today);
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setLoyalty(null);
+      setNotifications([]);
+      return;
+    }
+
+    getLoyaltySummary(user.id).then(setLoyalty);
+    getUserNotifications(user.id).then(setNotifications);
+  }, [user]);
+
+  function claimDailyReward() {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const today = new Date().toDateString();
+    window.localStorage.setItem("zenvy-daily-reward", today);
+    setDailyRewardClaimed(true);
+    addToast(`Daily reward claimed for your ${streak}-day streak.`);
+  }
+
+  async function handleMarkNotificationRead(notificationId: string) {
+    const updated = await markNotificationRead(notificationId);
+    setNotifications((current) =>
+      current.map((item) => (item.id === notificationId ? { ...item, ...updated } : item)),
+    );
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -86,7 +137,7 @@ export default function ProfilePage() {
                 {user.role}
               </span>
             </div>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-[24px] bg-slate-50 p-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Access</p>
                 <p className="mt-2 text-lg font-semibold text-zenvy-ink">JWT Active</p>
@@ -96,8 +147,68 @@ export default function ProfilePage() {
                 <p className="mt-2 text-lg font-semibold text-zenvy-ink">{wishlistCount} saved</p>
               </div>
               <div className="rounded-[24px] bg-slate-50 p-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Mode</p>
-                <p className="mt-2 text-lg font-semibold text-zenvy-ink">{tier ?? "gold"}</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Tier</p>
+                <p className="mt-2 text-lg font-semibold text-zenvy-ink">{loyalty?.tier ?? tier ?? "gold"}</p>
+              </div>
+              <div className="rounded-[24px] bg-slate-50 p-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Loyalty points</p>
+                <p className="mt-2 text-lg font-semibold text-zenvy-ink">{loyalty?.pointsBalance ?? 0}</p>
+              </div>
+            </div>
+            <div className="rounded-[24px] border border-slate-200 bg-[#f8fbff] p-5">
+              <div className="flex items-center gap-2 text-sm font-semibold text-[#1d4ed8]">
+                <Crown className="h-4 w-4" />
+                Loyalty summary
+              </div>
+              <p className="mt-2 text-sm text-slate-600">
+                Current tier {loyalty?.tier ?? tier ?? "gold"}.
+                {loyalty?.nextTier ? ` Next milestone: ${loyalty.nextTier}.` : ""}
+              </p>
+            </div>
+            <div className="rounded-[24px] border border-slate-200 bg-[#fffaf5] p-5">
+              <div className="flex items-center gap-2 text-sm font-semibold text-[#c2410c]">
+                <Gift className="h-4 w-4" />
+                Daily streak reward
+              </div>
+              <p className="mt-2 text-sm text-slate-600">
+                You are on a {streak}-day discovery streak.
+              </p>
+              <button
+                className="mt-4 rounded-full bg-zenvy-ink px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+                onClick={claimDailyReward}
+                disabled={dailyRewardClaimed}
+              >
+                {dailyRewardClaimed ? "Reward claimed today" : "Claim daily reward"}
+              </button>
+            </div>
+            <div className="rounded-[24px] border border-slate-200 bg-white p-5">
+              <div className="flex items-center gap-2 text-sm font-semibold text-zenvy-ink">
+                <Bell className="h-4 w-4 text-[#1d4ed8]" />
+                Recent notifications
+              </div>
+              <div className="mt-4 space-y-3">
+                {notifications.slice(0, 3).map((notification) => (
+                  <div key={notification.id} className="rounded-[20px] bg-slate-50 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-zenvy-ink">{notification.title}</p>
+                        <p className="mt-1 text-sm text-slate-600">{notification.message}</p>
+                      </div>
+                      {notification.status === "unread" ? (
+                        <button
+                          className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#1d4ed8]"
+                          onClick={() => void handleMarkNotificationRead(notification.id)}
+                        >
+                          Mark read
+                        </button>
+                      ) : (
+                        <span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-500">
+                          Read
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
             <button

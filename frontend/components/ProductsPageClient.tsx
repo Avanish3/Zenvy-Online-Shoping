@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
+import { ActiveFilters } from "@/components/ActiveFilters";
 import { ProductCard } from "@/components/ProductCard";
+import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { SectionHeading } from "@/components/SectionHeading";
 import { searchProducts } from "@/services/productService";
 import { useCompareStore } from "@/store/compareStore";
 import { useSearchStore } from "@/store/searchStore";
-import type { Product } from "@/types";
+import type { Product, SearchFilters } from "@/types";
 
 const categoryAliasMap: Record<string, string> = {
   mobiles: "electronics",
@@ -23,6 +25,8 @@ const categoryAliasMap: Record<string, string> = {
 };
 
 export function ProductsPageClient() {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const { filters, setFilters, resetFilters, addRecentSearch } = useSearchStore();
   const comparedItems = useCompareStore((state) => state.items);
@@ -30,6 +34,9 @@ export function ProductsPageClient() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Product[]>([]);
   const [availableBrands, setAvailableBrands] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(12);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   const selectedCategoryFromUrl = useMemo(() => {
     const raw = searchParams.get("category")?.trim().toLowerCase();
@@ -43,15 +50,26 @@ export function ProductsPageClient() {
   useEffect(() => {
     const nextBrand = searchParams.get("brand")?.trim() || undefined;
     const nextQuery = searchParams.get("q")?.trim() || "";
+    const nextRatingRaw = searchParams.get("rating");
+    const nextMinPriceRaw = searchParams.get("minPrice");
+    const nextMaxPriceRaw = searchParams.get("maxPrice");
+    const nextSort = searchParams.get("sort")?.trim() || undefined;
+    const nextView = searchParams.get("view")?.trim() || undefined;
 
     setQuery(nextQuery);
     setFilters({
       category: selectedCategoryFromUrl,
       brand: nextBrand,
+      rating: nextRatingRaw ? Number(nextRatingRaw) : undefined,
+      minPrice: nextMinPriceRaw ? Number(nextMinPriceRaw) : undefined,
+      maxPrice: nextMaxPriceRaw ? Number(nextMaxPriceRaw) : undefined,
+      sort: nextSort as SearchFilters["sort"],
+      view: nextView as SearchFilters["view"],
     });
   }, [searchParams, selectedCategoryFromUrl, setFilters]);
 
   useEffect(() => {
+    setLoading(true);
     searchProducts(query, filters.category).then((response) => {
       setAvailableBrands(response.facets.brands);
       const sorted = [...response.items]
@@ -77,8 +95,64 @@ export function ProductsPageClient() {
       }
 
       setResults(sorted);
+      setVisibleCount(12);
+      setLoading(false);
     });
   }, [filters, query]);
+
+  useEffect(() => {
+    const current = searchParams.toString();
+    const next = new URLSearchParams();
+
+    if (query.trim()) {
+      next.set("q", query.trim());
+    }
+    if (filters.category) {
+      next.set("category", filters.category);
+    }
+    if (filters.brand) {
+      next.set("brand", filters.brand);
+    }
+    if (filters.rating) {
+      next.set("rating", String(filters.rating));
+    }
+    if (filters.minPrice) {
+      next.set("minPrice", String(filters.minPrice));
+    }
+    if (filters.maxPrice) {
+      next.set("maxPrice", String(filters.maxPrice));
+    }
+    if (filters.sort && filters.sort !== "relevance") {
+      next.set("sort", filters.sort);
+    }
+    if (filters.view && filters.view !== "grid") {
+      next.set("view", filters.view);
+    }
+
+    if (next.toString() !== current) {
+      router.replace(next.toString() ? `${pathname}?${next.toString()}` : pathname, {
+        scroll: false,
+      });
+    }
+  }, [filters, pathname, query, router, searchParams]);
+
+  useEffect(() => {
+    if (!loadMoreRef.current || visibleCount >= results.length) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount((current) => Math.min(current + 8, results.length));
+        }
+      },
+      { rootMargin: "240px" },
+    );
+
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [results.length, visibleCount]);
 
   const activeFilterCount = useMemo(
     () =>
@@ -90,14 +164,46 @@ export function ProductsPageClient() {
   const activeFilterChips = useMemo(
     () =>
       [
-        filters.category ? `Category: ${filters.category}` : null,
-        filters.brand ? `Brand: ${filters.brand}` : null,
-        filters.rating ? `${filters.rating}+ stars` : null,
-        filters.minPrice ? `Min INR ${filters.minPrice}` : null,
-        filters.maxPrice ? `Max INR ${filters.maxPrice}` : null,
-      ].filter((value): value is string => Boolean(value)),
-    [filters],
+        filters.category
+          ? {
+              id: "category",
+              label: `Category: ${filters.category}`,
+              onRemove: () => setFilters({ category: undefined }),
+            }
+          : null,
+        filters.brand
+          ? {
+              id: "brand",
+              label: `Brand: ${filters.brand}`,
+              onRemove: () => setFilters({ brand: undefined }),
+            }
+          : null,
+        filters.rating
+          ? {
+              id: "rating",
+              label: `${filters.rating}+ stars`,
+              onRemove: () => setFilters({ rating: undefined }),
+            }
+          : null,
+        filters.minPrice
+          ? {
+              id: "min-price",
+              label: `Min INR ${filters.minPrice}`,
+              onRemove: () => setFilters({ minPrice: undefined }),
+            }
+          : null,
+        filters.maxPrice
+          ? {
+              id: "max-price",
+              label: `Max INR ${filters.maxPrice}`,
+              onRemove: () => setFilters({ maxPrice: undefined }),
+            }
+          : null,
+      ].filter((value): value is NonNullable<typeof value> => Boolean(value)),
+    [filters, setFilters],
   );
+  const visibleResults = useMemo(() => results.slice(0, visibleCount), [results, visibleCount]);
+  const hasMore = visibleCount < results.length;
 
   return (
     <div className="section-shell space-y-8 py-10">
@@ -264,17 +370,13 @@ export function ProductsPageClient() {
               </div>
             </div>
 
-            {activeFilterChips.length ? (
-              <div className="mb-5 flex flex-wrap gap-2">
-                {activeFilterChips.map((chip) => (
-                  <span key={chip} className="rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">
-                    {chip}
-                  </span>
-                ))}
-              </div>
-            ) : null}
+            <ActiveFilters
+              chips={activeFilterChips}
+              totalResults={results.length}
+              onClearAll={resetFilters}
+            />
 
-            {results.length ? (
+            {loading ? (
               <div
                 className={`grid gap-5 ${
                   (filters.view ?? "grid") === "list"
@@ -282,16 +384,37 @@ export function ProductsPageClient() {
                     : "sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
                 }`}
               >
-                {results.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    variant={(filters.view ?? "grid") === "list" ? "list" : "grid"}
-                    highlight={product.recommendationReason ? "Why this?" : undefined}
-                    showCompare
-                  />
+                {Array.from({
+                  length: (filters.view ?? "grid") === "list" ? 4 : 10,
+                }).map((_, index) => (
+                  <ProductCardSkeleton key={`product-skeleton-${index}`} />
                 ))}
               </div>
+            ) : results.length ? (
+              <>
+                <div
+                  className={`grid gap-5 ${
+                    (filters.view ?? "grid") === "list"
+                      ? "grid-cols-1"
+                      : "sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+                  }`}
+                >
+                  {visibleResults.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      variant={(filters.view ?? "grid") === "list" ? "list" : "grid"}
+                      highlight={product.recommendationReason ? "Why this?" : undefined}
+                      showCompare
+                    />
+                  ))}
+                </div>
+                {hasMore ? (
+                  <div ref={loadMoreRef} className="mt-6 text-center text-sm text-slate-500">
+                    Loading more products...
+                  </div>
+                ) : null}
+              </>
             ) : (
               <div className="rounded-[28px] border border-dashed border-slate-200 bg-white p-10 text-center">
                 <p className="text-lg font-semibold text-zenvy-ink">

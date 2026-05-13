@@ -1,6 +1,12 @@
 import { API, withFallback } from "@/services/api";
 import { mockCart, mockOrders, mockTracking } from "@/services/mockData";
-import type { Cart, Order, PaymentIntent, TrackingSummary } from "@/types";
+import type {
+  Cart,
+  Order,
+  PaymentConfirmationResult,
+  PaymentIntent,
+  TrackingSummary,
+} from "@/types";
 
 export async function getCart(userId: string) {
   return withFallback(
@@ -101,18 +107,29 @@ export async function createPaymentIntent(orderId: string, provider: "razorpay" 
   );
 }
 
-export async function confirmPayment(paymentId: string, providerPaymentId: string) {
+export async function confirmPayment(
+  paymentId: string,
+  providerPaymentId: string,
+  options?: {
+    signature?: string;
+    status?: "succeeded" | "failed";
+    reason?: string;
+  },
+) {
   return withFallback(
     async () => {
-      const response = await API.post(`/api/v1/payments/${paymentId}/confirm`, {
+      const response = await API.post<PaymentConfirmationResult>(`/api/v1/payments/${paymentId}/confirm`, {
         providerPaymentId,
+        signature: options?.signature,
+        status: options?.status,
+        reason: options?.reason,
       });
       return response.data;
     },
     {
       paymentId,
       providerPaymentId,
-      status: "confirmed",
+      status: options?.status ?? "succeeded",
     },
   );
 }

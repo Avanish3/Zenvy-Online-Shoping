@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductVisual } from "@/components/ProductVisual";
 import { triggerHaptic } from "@/lib/haptics";
@@ -29,6 +29,7 @@ export function ProductImageGallery({ product }: { product: Product }) {
     [product],
   );
   const [activeIndex, setActiveIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
 
   function move(delta: number) {
     setActiveIndex((current) => {
@@ -38,9 +39,32 @@ export function ProductImageGallery({ product }: { product: Product }) {
     });
   }
 
+  function handleTouchStart(clientX: number) {
+    touchStartX.current = clientX;
+  }
+
+  function handleTouchEnd(clientX: number) {
+    if (touchStartX.current === null) {
+      return;
+    }
+
+    const delta = clientX - touchStartX.current;
+    touchStartX.current = null;
+
+    if (Math.abs(delta) < 40) {
+      return;
+    }
+
+    move(delta > 0 ? -1 : 1);
+  }
+
   return (
     <div className="space-y-4">
-      <div className="relative">
+      <div
+        className="relative"
+        onTouchStart={(event) => handleTouchStart(event.touches[0]?.clientX ?? 0)}
+        onTouchEnd={(event) => handleTouchEnd(event.changedTouches[0]?.clientX ?? 0)}
+      >
         <ProductVisual
           category={product.category}
           name={slides[activeIndex]?.name ?? product.name}

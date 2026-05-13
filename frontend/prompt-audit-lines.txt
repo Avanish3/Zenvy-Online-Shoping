@@ -1,0 +1,112 @@
+SECTION 1 - PRODUCT CARDS & CATALOGUE
+1.1 Fix product card size, ratings, price, and cart button
+PROMPT 1 Make product cards match Amazon quality — full upgrade
+SECTION 2 - TRUST & SOCIAL PROOF
+2.1 Trust bar below header
+PROMPT 2 Add trust signal bar — free delivery, returns, secure payments
+2.2 Real-time viewer count on PDP
+PROMPT 10 &apos;X people viewing this now&apos; — WebSocket backed social proof
+2.3 Social proof counters on cards
+PROMPT 15 Sold counter, verified seller badge, low stock badge
+SECTION 3 - SEARCH & DISCOVERY
+3.1 Voice and visual search icons in search bar
+PROMPT 3 Add mic and camera icons — make AI search discoverable
+SECTION 4 - HOMEPAGE IMPROVEMENTS
+4.1 Countdown timer for deals
+PROMPT 4 Deal countdown timer — HH:MM:SS urgency driver
+4.2 Shop by budget + new arrivals
+PROMPT 16 Shop by budget section + new arrivals daily section
+SECTION 5 - MOBILE EXPERIENCE
+5.1 Bottom navigation bar
+PROMPT 5 Add mobile bottom nav — Home, Search, Categories, Cart, Account
+5.2 Responsive product grid
+PROMPT 6 2-col mobile, 4-col desktop, infinite scroll, skeleton loaders
+SECTION 6 - CHECKOUT & PAYMENTS
+6.1 Delivery date promise
+PROMPT 7 Show delivery date on cart and checkout — #2 abandonment fix
+6.2 UPI QR code payment
+PROMPT 8 UPI QR code on payment screen — 45% of India pays by UPI
+6.3 EMI calculator
+PROMPT 9 Expandable EMI breakdown in cart and checkout — drives large orders
+SECTION 7 - PERFORMANCE
+7.1 Core Web Vitals optimisation
+PROMPT 13 LCP, CLS, INP — complete optimisation checklist and code
+7.2 Skeleton loaders (CLS = 0)
+PROMPT 14 Skeleton loader components for every data-driven section
+7.3 PWA — install + offline mode
+PROMPT 17 PWA service worker, manifest, offline page, cache strategy
+SECTION 8 - AI FEATURES
+8.1 AI review summary on PDP
+PROMPT 11 Pros/cons chips, aspect ratings, NLP summary — beats Amazon
+8.2 Why recommended + deal score bar
+PROMPT 12 Tooltip on AI cards + deal score bar from Rust pricing engine
+SECTION 9 - CHECKOUT EXTRAS
+9.1 One-click reorder
+PROMPT 18 Buy again from account orders page
+9.2 Pincode autocomplete
+PROMPT 19 India Post API auto-fills city and state
+9.3 Secure payment icons
+PROMPT 20 Visa, Mastercard, UPI, Razorpay, PhonePe logos
+SECTION 10 - HOMEPAGE EXTRAS
+10.1 Recently viewed
+PROMPT 21 localStorage recent activity carousel
+10.2 Live deal ticker
+PROMPT 31 Scrolling marquee of active deals
+10.3 Category quick-links
+PROMPT 44 Quick nav row below header for top categories
+SECTION 11 - SEARCH EXTRAS
+11.1 Autocomplete with images
+PROMPT 22 Product thumbnails in autocomplete dropdown
+11.2 Trending searches
+PROMPT 43 Trending and recent searches on focus
+11.3 Did You Mean?
+PROMPT 23 Spell correction and zero-results page
+SECTION 12 - MOBILE EXTRAS
+12.1 Pull-to-refresh
+PROMPT 26 Touch pull down to refresh product list
+12.2 Swipe image gallery
+PROMPT 27 Left/right swipe on PDP product images
+12.3 Haptic feedback
+PROMPT 28 Vibration on cart add, filter, checkout success
+SECTION 13 - SOCIAL & ENGAGEMENT
+13.1 Compare products
+PROMPT 24 Compare checkbox on cards + floating bar
+13.2 Compare page
+PROMPT 25 Side-by-side spec table for up to 4 products
+13.3 Social shopping + group buy
+PROMPT 36 Share wishlist + group buying tiers
+13.4 Daily streak gamification
+PROMPT 37 Streak tracker + daily reward claim
+SECTION 14 - REAL-TIME & LIVE
+14.1 Live price WebSocket
+PROMPT 32 Animated real-time price on PDP
+14.2 Live stock WebSocket
+PROMPT 33 Real-time stock, OOS, notify me
+14.3 Push notifications
+PROMPT 34 Order updates, price drops, flash deals
+14.4 Live commerce stream
+PROMPT 35 Live video + in-stream buy button
+SECTION 15 - AI & FASHION
+15.1 AI size recommendation
+PROMPT 29 Measurement-based size AI on fashion PDP
+15.2 Complete the look
+PROMPT 30 AI outfit builder with bundle pricing
+SECTION 16 - ADVANCED UX
+16.1 Toast system
+PROMPT 39 Animated Framer Motion notifications
+16.2 Animated mega menu
+PROMPT 40 Framer Motion mega menu with brands
+16.3 Filter sidebar
+PROMPT 38 Brands, price, rating synced to URL
+16.4 Active filter chips
+PROMPT 47 Chip bar with individual remove + clear all
+Depends on: nuqs (same as Prompt 38)
+16.5 Wishlist with price alert
+PROMPT 46 Save + auto-subscribe to price drop alert
+SECTION 17 - SELLER & ORDERS
+17.1 Seller analytics
+PROMPT 41 Revenue charts, orders, return rate dashboard
+17.2 Order tracking
+PROMPT 42 Real-time step tracker + carrier details
+17.3 Razorpay full integration
+PROMPT 45 Order create + SDK open + verify flow

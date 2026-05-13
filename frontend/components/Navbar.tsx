@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
+  Camera,
   Bell,
   BookOpen,
   Car,
@@ -18,6 +19,7 @@ import {
   Lamp,
   MapPin,
   Menu,
+  Mic,
   MonitorSmartphone,
   Package2,
   Search,
@@ -35,12 +37,15 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import { Logo } from "@/components/Logo";
+import { useVisualSearch } from "@/hooks/useVisualSearch";
+import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import { useSearchStore } from "@/store/searchStore";
 import { useUiStore } from "@/store/uiStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { getBudgetQuickLinks } from "@/services/experienceService";
+import { getUserNotifications } from "@/services/commerceSignalsService";
 
 const categoryLinks = [
   { href: "/products", label: "For You", icon: Sparkles },
@@ -123,17 +128,50 @@ export function Navbar() {
   const wishlistCount = useWishlistStore((state) => state.items.length);
   const addRecentSearch = useSearchStore((state) => state.addRecentSearch);
   const setStoredQuery = useSearchStore((state) => state.setQuery);
-  const { mobileMenuOpen, setChatbotOpen, setMobileMenuOpen } = useUiStore();
+  const { mobileMenuOpen, setChatbotOpen, setMobileMenuOpen, addToast } = useUiStore();
   const user = useAuthStore((state) => state.user);
   const [moreOpen, setMoreOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState(searchParams.get("q") ?? "");
+  const [notificationCount, setNotificationCount] = useState(0);
+  const {
+    inputRef: visualInputRef,
+    handleFileChange,
+    isLoading: visualSearchLoading,
+    openPicker,
+  } = useVisualSearch({
+    onResults: (_, inferredLabel) => {
+      setSearchInput(inferredLabel);
+      setStoredQuery(inferredLabel);
+      addRecentSearch(inferredLabel);
+      setMobileMenuOpen(false);
+      router.push(`/search?q=${encodeURIComponent(inferredLabel)}&mode=visual`);
+    },
+  });
+  const { isListening, start: startVoiceSearch } = useVoiceSearch((transcript) => {
+    setSearchInput(transcript);
+    setStoredQuery(transcript);
+    addRecentSearch(transcript);
+    setMobileMenuOpen(false);
+    router.push(`/search?q=${encodeURIComponent(transcript)}`);
+  });
 
   const activeCategory = useMemo(
     () => searchParams.get("category")?.toLowerCase() ?? "for-you",
     [searchParams],
   );
+
+  useEffect(() => {
+    if (!user) {
+      setNotificationCount(0);
+      return;
+    }
+
+    getUserNotifications(user.id).then((items) => {
+      setNotificationCount(items.filter((item) => item.status === "unread").length);
+    });
+  }, [user]);
 
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -147,6 +185,12 @@ export function Navbar() {
     addRecentSearch(value);
     setMobileMenuOpen(false);
     router.push(`/search?q=${encodeURIComponent(value)}`);
+  }
+
+  function handleVoiceSearch() {
+    if (!startVoiceSearch()) {
+      addToast("Voice search is not available in this browser.");
+    }
   }
 
   return (
@@ -210,9 +254,37 @@ export function Navbar() {
                   className="w-full bg-transparent text-base outline-none placeholder:text-slate-400"
                   placeholder="Search products, brands and smarter picks"
                 />
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    aria-label="Voice search"
+                    className={clsx(
+                      "rounded-full p-2 text-slate-500 transition hover:bg-slate-100",
+                      isListening && "bg-red-50 text-red-600",
+                    )}
+                    onClick={handleVoiceSearch}
+                  >
+                    <Mic className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Search by image"
+                    className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100"
+                    onClick={openPicker}
+                  >
+                    <Camera className="h-4 w-4" />
+                  </button>
+                  <input
+                    ref={visualInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                </div>
                 <div className="hidden items-center gap-2 xl:flex">
                   <span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                    AI ready
+                    {visualSearchLoading ? "Scanning" : isListening ? "Listening" : "AI ready"}
                   </span>
                   <button
                     type="submit"
@@ -333,6 +405,19 @@ export function Navbar() {
                 ) : null}
               </Link>
               <Link
+                href="/profile"
+                prefetch={false}
+                className="relative inline-flex items-center gap-2 rounded-full px-3 py-2.5 text-slate-900 transition hover:bg-slate-50"
+              >
+                <Bell className="h-5 w-5" />
+                <span className="font-medium">Alerts</span>
+                {notificationCount > 0 ? (
+                  <span className="absolute right-1 top-1 rounded-full bg-[#1d4ed8] px-1.5 text-[10px] font-semibold text-white">
+                    {notificationCount}
+                  </span>
+                ) : null}
+              </Link>
+              <Link
                 href="/cart"
                 prefetch={false}
                 className="relative inline-flex items-center gap-2 rounded-full px-3 py-2.5 text-slate-900 transition hover:bg-slate-50"
@@ -444,6 +529,25 @@ export function Navbar() {
                   className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
                   placeholder="Search products and brands"
                 />
+                <button
+                  type="button"
+                  aria-label="Voice search"
+                  className={clsx(
+                    "rounded-full p-2 text-slate-500 transition hover:bg-slate-100",
+                    isListening && "bg-red-50 text-red-600",
+                  )}
+                  onClick={handleVoiceSearch}
+                >
+                  <Mic className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Search by image"
+                  className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100"
+                  onClick={openPicker}
+                >
+                  <Camera className="h-4 w-4" />
+                </button>
               </div>
             </form>
 

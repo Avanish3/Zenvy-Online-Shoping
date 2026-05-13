@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { PackageCheck, RotateCcw, Truck } from "lucide-react";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { formatCurrency } from "@/lib/formatters";
@@ -86,6 +87,9 @@ export default function OrdersPage() {
                     </p>
                   </div>
                   <div className="mt-4 flex flex-wrap gap-3">
+                    <Link href={`/orders/${order.id}`} className="btn-secondary px-4 py-2">
+                      View tracking
+                    </Link>
                     <button
                       className="btn-secondary px-4 py-2"
                       onClick={() => {

@@ -25,6 +25,7 @@ import {
 } from "@/services/orderService";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
+import type { PaymentIntent } from "@/types";
 
 const steps = ["Delivery", "Summary", "Payment"] as const;
 
@@ -38,7 +39,7 @@ export default function CheckoutPage() {
   const [selectedAddressId, setSelectedAddressId] = useState(mockAddresses[0]?.id ?? "");
   const [paymentMethodId, setPaymentMethodId] = useState(mockPaymentMethods[0]?.id ?? "");
   const [pincode, setPincode] = useState(mockAddresses[0]?.pincode ?? "");
-  const [razorpayOrderId, setRazorpayOrderId] = useState("");
+  const [paymentIntent, setPaymentIntent] = useState<PaymentIntent | null>(null);
 
   const orderLines = useMemo(
     () =>
@@ -75,18 +76,17 @@ export default function CheckoutPage() {
     try {
       await createShippingQuote(user.id, orderLines);
       const order = await createOrder(user.id, orderLines);
-      const paymentIntent = await createPaymentIntent(
-        order.id,
-        selectedPayment.type === "card" ? "stripe" : "razorpay",
-      );
+      const intent =
+        selectedPayment.type === "cod"
+          ? null
+          : await createPaymentIntent(order.id, "razorpay");
 
-      if (selectedPayment.type === "upi" || selectedPayment.type === "card") {
-        setRazorpayOrderId(order.id);
+      if (intent) {
+        setPaymentIntent(intent);
         setMessage(
-          `Order ${order.orderNumber} is ready. Continue with the secure payment action below.`,
+          `Order ${order.orderNumber} is ready. Continue with the verified ${intent.provider} payment step below.`,
         );
       } else {
-        await confirmPayment(paymentIntent.id, `pay_${Date.now()}`);
         clearCart();
         setMessage(`Order ${order.orderNumber} placed successfully using ${selectedPayment.label}.`);
       }
@@ -263,10 +263,9 @@ export default function CheckoutPage() {
             <Sparkles className="h-4 w-4" />
             {busy ? "Preparing checkout..." : "Prepare order"}
           </button>
-          {razorpayOrderId ? (
+          {paymentIntent ? (
             <RazorpayButton
-              orderId={razorpayOrderId}
-              amount={Math.round(total * 100)}
+              paymentIntent={paymentIntent}
               userInfo={{
                 name: user?.name ?? "ZENVY Shopper",
                 email: user?.email ?? "shopper@zenvy.local",
@@ -274,6 +273,7 @@ export default function CheckoutPage() {
               onSuccess={() => {
                 clearCart();
                 setMessage("Payment completed and verified successfully.");
+                setPaymentIntent(null);
               }}
             />
           ) : null}

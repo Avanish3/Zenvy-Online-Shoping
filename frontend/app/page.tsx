@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { CategoryGrid } from "@/components/CategoryGrid";
+import { DealSpotlightSection } from "@/components/DealSpotlightSection";
 import { HeroBanner } from "@/components/HeroBanner";
 import { InlineAiAssistantSection } from "@/components/InlineAiAssistantSection";
 import { MarketplaceShelf } from "@/components/MarketplaceShelf";
@@ -31,6 +32,7 @@ export default async function HomePage() {
   return (
     <div className="bg-[#f1f3f6] pb-10">
       <HeroBanner featuredProducts={interestingFinds.slice(0, 3)} />
+      <DealSpotlightSection products={trendingNow.length ? trendingNow : interestingFinds} />
       <section className="section-shell py-3">
         <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
           <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">

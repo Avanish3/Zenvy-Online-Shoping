@@ -1,17 +1,20 @@
 "use client";
 
-import { type ChangeEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Camera, Mic, Search, Sparkles, TrendingUp } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductVisual } from "@/components/ProductVisual";
 import { SectionHeading } from "@/components/SectionHeading";
-import { askAssistant, visualSearch } from "@/services/aiService";
+import { useVisualSearch } from "@/hooks/useVisualSearch";
+import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import {
+  getCategoryQuickLinks,
   getDidYouMean,
   getTrendingSearches,
   getVisualSuggestions,
 } from "@/services/experienceService";
+import { askAssistant } from "@/services/aiService";
 import { getAutocomplete, searchProducts } from "@/services/productService";
 import { triggerHaptic } from "@/lib/haptics";
 import { useSearchStore } from "@/store/searchStore";
@@ -28,6 +31,24 @@ export default function SearchPage() {
   const [didYouMean, setDidYouMean] = useState<string | null>(null);
   const trendingSearches = getTrendingSearches();
   const visualSuggestions = useMemo(() => getVisualSuggestions(query), [query]);
+  const categoryQuickLinks = getCategoryQuickLinks();
+  const { isListening, isSupported, start } = useVoiceSearch((transcript) => {
+    setQuery(transcript);
+    addRecentSearch(transcript);
+    triggerHaptic(12);
+  });
+  const {
+    error: visualSearchError,
+    handleFileChange,
+    inputRef,
+    isLoading: isVisualSearchLoading,
+    openPicker,
+  } = useVisualSearch({
+    onResults: (nextResults, inferredLabel) => {
+      setImageLabel(inferredLabel);
+      setResults(nextResults);
+    },
+  });
 
   useEffect(() => {
     setStoredQuery(query);
@@ -41,58 +62,13 @@ export default function SearchPage() {
     );
   }, [query, setStoredQuery]);
 
-  async function handleVoiceSearch() {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const speechWindow = window as typeof window & {
-      webkitSpeechRecognition?: new () => {
-        start: () => void;
-        onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
-      };
-      SpeechRecognition?: new () => {
-        start: () => void;
-        onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
-      };
-    };
-    const Recognition =
-      speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
-
-    if (!Recognition) {
-      setAssistantHint("Voice search is not available in this browser yet.");
-      return;
-    }
-
-    const recognition = new Recognition();
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setQuery(transcript);
-      addRecentSearch(transcript);
-      triggerHaptic(12);
-    };
-    recognition.start();
-  }
-
-  async function handleImagePick(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    const inferredLabel = file.name.replace(/\.[^.]+$/, "").replace(/[-_]/g, " ");
-    setImageLabel(inferredLabel);
-    const response = await visualSearch(inferredLabel);
-    setResults(response.results);
-  }
-
   const headerStats = useMemo(
     () => [
       `${results.length} matches`,
       `${autocomplete.length} smart suggestions`,
-      imageLabel ? `image hint: ${imageLabel}` : "voice + image ready",
+      imageLabel ? `image hint: ${imageLabel}` : isListening ? "listening now" : "voice + image ready",
     ],
-    [autocomplete.length, imageLabel, results.length],
+    [autocomplete.length, imageLabel, isListening, results.length],
   );
 
   return (
@@ -120,15 +96,22 @@ export default function SearchPage() {
             />
           </div>
           <div className="flex flex-wrap gap-3">
-            <button onClick={() => void handleVoiceSearch()} className="btn-secondary">
+            <button
+              onClick={() => {
+                if (!start()) {
+                  setAssistantHint("Voice search is not available in this browser yet.");
+                }
+              }}
+              className={`btn-secondary ${isListening ? "border-red-200 bg-red-50 text-red-600" : ""}`}
+            >
               <Mic className="h-4 w-4" />
-              Voice
+              {isListening ? "Listening" : isSupported ? "Voice" : "Voice off"}
             </button>
-            <label className="btn-secondary cursor-pointer">
+            <button onClick={openPicker} className="btn-secondary">
               <Camera className="h-4 w-4" />
-              Image
-              <input type="file" accept="image/*" className="hidden" onChange={handleImagePick} />
-            </label>
+              {isVisualSearchLoading ? "Scanning" : "Image"}
+            </button>
+            <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
           </div>
         </div>
 
@@ -156,7 +139,9 @@ export default function SearchPage() {
         <div className="mt-5 rounded-[28px] bg-slate-50 p-4">
           <div className="flex items-start gap-3">
             <Sparkles className="mt-1 h-4 w-4 text-zenvy-rose" />
-            <p className="text-sm leading-7 text-slate-600">{assistantHint}</p>
+            <p className="text-sm leading-7 text-slate-600">
+              {visualSearchError ?? assistantHint}
+            </p>
           </div>
         </div>
       </section>
@@ -242,10 +227,28 @@ export default function SearchPage() {
         </div>
       ) : (
         <div className="glass-panel rounded-[28px] p-8 text-center">
-          <p className="text-lg font-semibold text-zenvy-ink">No direct matches found</p>
-          <p className="mt-2 text-sm text-slate-500">
-            Try one of the trending searches or browse the main catalog lanes.
+          <p className="text-lg font-semibold text-zenvy-ink">
+            No direct matches found{query ? ` for "${query}"` : ""}
           </p>
+          <p className="mt-2 text-sm text-slate-500">
+            Try one of the trending searches, browse a category, or pivot with AI guidance.
+          </p>
+          {didYouMean ? (
+            <p className="mt-3 text-sm text-slate-600">
+              Did you mean{" "}
+              <button className="font-semibold text-[#1d4ed8]" onClick={() => setQuery(didYouMean)}>
+                {didYouMean}
+              </button>
+              ?
+            </p>
+          ) : null}
+          <div className="mt-5 flex flex-wrap justify-center gap-2">
+            {categoryQuickLinks.map((item) => (
+              <Link key={item.label} href={item.href} className="pill-chip">
+                {item.label}
+              </Link>
+            ))}
+          </div>
           <Link href="/products" className="btn-primary mt-6">
             Open catalog
           </Link>

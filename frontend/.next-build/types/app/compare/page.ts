@@ -1,4 +1,4 @@
-// File: C:\Zenvy\frontend\app\compare\page.tsx
+// File: C:\cognexia\Zenvy-Online-Shoping\frontend\app\compare\page.tsx
 import * as entry from '../../../../app/compare/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

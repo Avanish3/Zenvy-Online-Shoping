@@ -153,6 +153,12 @@ export interface PaymentIntent {
   providerPayload?: Record<string, unknown>;
 }
 
+export interface PaymentConfirmationResult {
+  paymentId: string;
+  providerPaymentId: string;
+  status: string;
+}
+
 export interface AssistantMessage {
   id: string;
   role: "user" | "assistant";
@@ -254,6 +260,28 @@ export interface ProductLiveSignal {
   lastUpdatedAt: string;
 }
 
+export interface InventorySnapshot {
+  productId: string;
+  availableQuantity: number;
+  reservedQuantity: number;
+  warehouseCode?: string | null;
+}
+
+export interface DynamicPriceSnapshot {
+  variantId: string;
+  productId: string;
+  currentPrice: number;
+  originalPrice: number;
+  currency: string;
+  reasons: string[];
+}
+
+export interface PriceHistoryPoint {
+  date: string;
+  amount: number;
+  currency: string;
+}
+
 export interface PincodeSuggestion {
   code: string;
   city: string;
@@ -287,6 +315,8 @@ export interface LiveCommerceSession {
   viewerCount: number;
   productIds: string[];
   status: "live" | "scheduled";
+  createdAt?: string;
+  streamId?: string;
 }
 
 export interface SellerAnalyticsSummary {
@@ -294,4 +324,37 @@ export interface SellerAnalyticsSummary {
   conversionRate: number;
   repeatCustomers: number;
   lowStockCount: number;
+}
+
+export interface UserNotification {
+  id: string;
+  userId: string;
+  channel: "push" | "email" | "sms" | "in_app";
+  title: string;
+  message: string;
+  status: "read" | "unread";
+  createdAt: string;
+  readAt?: string | null;
+}
+
+export interface LoyaltySummary {
+  userId: string;
+  pointsBalance: number;
+  tier: UserTier;
+  nextTier: UserTier;
+}
+
+export type RealtimeChannel =
+  | "/ws/orders"
+  | "/ws/prices"
+  | "/ws/notifications"
+  | "/ws/live";
+
+export interface RealtimeEventMessage<T = unknown> {
+  type: string;
+  event?: string;
+  room?: string;
+  channel?: RealtimeChannel;
+  payload?: T;
+  received?: unknown;
 }

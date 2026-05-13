@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
   Clock3,
-  Heart,
   RotateCcw,
   ShoppingBag,
   Sparkles,
@@ -14,6 +13,8 @@ import {
 import clsx from "clsx";
 import { DealCountdown } from "@/components/DealCountdown";
 import { ProductVisual } from "@/components/ProductVisual";
+import { LowStockBadge, SoldCounter, VerifiedSellerBadge } from "@/components/SocialProof";
+import { WishlistButton } from "@/components/WishlistButton";
 import { formatCurrency } from "@/lib/formatters";
 import { triggerHaptic } from "@/lib/haptics";
 import {
@@ -30,7 +31,6 @@ import { getProductLiveSignal } from "@/services/experienceService";
 import { useCartStore } from "@/store/cartStore";
 import { useCompareStore } from "@/store/compareStore";
 import { useUiStore } from "@/store/uiStore";
-import { useWishlistStore } from "@/store/wishlistStore";
 import type { Product, ProductCardVariant } from "@/types";
 
 interface ProductCardProps {
@@ -54,8 +54,6 @@ export function ProductCard({
   showCompare = false,
 }: ProductCardProps) {
   const addItem = useCartStore((state) => state.addItem);
-  const toggleWishlist = useWishlistStore((state) => state.toggleWishlist);
-  const isWishlisted = useWishlistStore((state) => state.isWishlisted(product.id));
   const toggleCompare = useCompareStore((state) => state.toggleCompare);
   const isCompared = useCompareStore((state) => state.isCompared(product.id));
   const addToast = useUiStore((state) => state.addToast);
@@ -66,6 +64,13 @@ export function ProductCard({
   const compactCard = variant === "compact" || variant === "mini";
   const listCard = variant === "list";
   const liveSignal = getProductLiveSignal(product);
+  const availableQuantity = product.availableQuantity ?? 0;
+  const sellerTier =
+    (product.dealScore ?? 0) >= 85
+      ? "verified"
+      : (product.rating ?? 0) >= 4.5
+        ? "assured"
+        : "preferred";
 
   return (
     <article
@@ -82,24 +87,7 @@ export function ProductCard({
           compact={compactCard}
           imageUrl={product.media?.[0]?.url}
         />
-        <button
-          className={clsx(
-            "absolute right-2 top-2 rounded-full p-2 shadow-sm transition",
-            isWishlisted ? "bg-zenvy-rose text-white" : "bg-white/90 text-zenvy-ink",
-          )}
-          onClick={() => {
-            toggleWishlist(product);
-            triggerHaptic(10);
-            addToast(
-              isWishlisted
-                ? `${product.name} removed from wishlist`
-                : `${product.name} saved to wishlist`,
-            );
-          }}
-          aria-label="Toggle wishlist"
-        >
-          <Heart className="h-4 w-4" />
-        </button>
+        <WishlistButton product={product} className="absolute right-2 top-2" />
         <div className="absolute left-2 top-2 flex max-w-[78%] flex-wrap gap-1.5">
           {primaryBadges.map((badge) => (
             <span
@@ -151,6 +139,11 @@ export function ProductCard({
           <span className="font-medium text-slate-700">
             {new Intl.NumberFormat("en-IN").format(product.reviewCount ?? 0)} reviews
           </span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <VerifiedSellerBadge tier={sellerTier} />
+          <SoldCounter soldCount={liveSignal.soldCount24h} />
         </div>
 
         {!compactCard ? (
@@ -241,6 +234,7 @@ export function ProductCard({
           >
             {stockMessage}
           </div>
+          <LowStockBadge quantity={availableQuantity} />
 
           <div className="rounded-full bg-slate-100 p-1">
             <div

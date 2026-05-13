@@ -1,4 +1,4 @@
-// File: C:\Zenvy\frontend\app\checkout\page.tsx
+// File: C:\cognexia\Zenvy-Online-Shoping\frontend\app\checkout\page.tsx
 import * as entry from '../../../../app/checkout/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
