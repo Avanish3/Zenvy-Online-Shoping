@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   output: "standalone",
   reactStrictMode: true,
+  experimental: {
+    webpackBuildWorker: false,
+  },
   assetPrefix: process.env.NODE_ENV === "development" ? siteUrl : undefined,
   devIndicators: false,
   images: {

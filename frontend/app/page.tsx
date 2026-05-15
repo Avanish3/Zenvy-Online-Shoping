@@ -21,6 +21,7 @@ export default async function HomePage() {
   const trendingNow = products
     .filter((product) => product.badges?.includes("trending") || product.badges?.includes("bestseller"))
     .slice(0, 6);
+  const newArrivals = [...products].slice(-6).reverse();
   const electronics = products.filter((product) => product.category === "electronics").slice(0, 6);
   const fashionAndLifestyle = products.filter((product) => product.category === "fashion").slice(0, 6);
   const homeAndUtility = products
@@ -77,6 +78,13 @@ export default async function HomePage() {
         subtitle="High-velocity products shoppers are clicking right now"
         accent="white"
         products={trendingNow}
+      />
+
+      <MarketplaceShelf
+        title="New arrivals"
+        subtitle="Fresh additions with fast-entry discovery for repeat shoppers"
+        accent="orange"
+        products={newArrivals}
       />
 
       <RecentlyViewedSection />

@@ -1,0 +1,23 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/account/orders/[id]/page": "app/account/orders/[id]/page.js",
+  "/account/profile/page": "app/account/profile/page.js",
+  "/account/wishlist/page": "app/account/wishlist/page.js",
+  "/account/orders/page": "app/account/orders/page.js",
+  "/cart/page": "app/cart/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/checkout/page": "app/checkout/page.js",
+  "/categories/page": "app/categories/page.js",
+  "/checkout/success/page": "app/checkout/success/page.js",
+  "/compare/page": "app/compare/page.js",
+  "/orders/page": "app/orders/page.js",
+  "/orders/[id]/page": "app/orders/[id]/page.js",
+  "/product/[id]/page": "app/product/[id]/page.js",
+  "/products/[slug]/page": "app/products/[slug]/page.js",
+  "/profile/page": "app/profile/page.js",
+  "/products/page": "app/products/page.js",
+  "/seller/dashboard/page": "app/seller/dashboard/page.js",
+  "/search/page": "app/search/page.js",
+  "/wishlist/page": "app/wishlist/page.js",
+  "/page": "app/page.js"
+}

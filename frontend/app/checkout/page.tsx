@@ -28,6 +28,7 @@ import { useCartStore } from "@/store/cartStore";
 import type { PaymentIntent } from "@/types";
 
 const steps = ["Delivery", "Summary", "Payment"] as const;
+const paymentBrandMarks = ["Visa", "Mastercard", "UPI", "Razorpay", "PhonePe"] as const;
 
 export default function CheckoutPage() {
   const user = useAuthStore((state) => state.user);
@@ -323,6 +324,21 @@ export default function CheckoutPage() {
               <p className="mt-1 text-slate-500">{badge.description}</p>
             </div>
           ))}
+        </div>
+        <div className="mt-6 rounded-[24px] border border-slate-100 bg-white p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+            Accepted payment rails
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {paymentBrandMarks.map((brand) => (
+              <span
+                key={brand}
+                className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700"
+              >
+                {brand}
+              </span>
+            ))}
+          </div>
         </div>
       </aside>
     </div>
