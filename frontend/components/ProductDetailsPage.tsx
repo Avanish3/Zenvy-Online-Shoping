@@ -277,6 +277,8 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
   const socialOffer = getSocialOffer(product);
   const effectivePrice = dynamicPrice?.currentPrice ?? product.price;
   const effectiveOriginalPrice = dynamicPrice?.originalPrice ?? product.originalPrice ?? product.price;
+  const currentInventory = inventory?.availableQuantity ?? product.availableQuantity ?? 0;
+  const isOutOfStock = currentInventory <= 0;
   const discount =
     effectiveOriginalPrice > effectivePrice
       ? Math.round(((effectiveOriginalPrice - effectivePrice) / effectiveOriginalPrice) * 100)
@@ -287,6 +289,18 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
       : (product.rating ?? 0) >= 4.5
         ? "assured"
         : "preferred";
+
+  function handleNotifyMe() {
+    if (!product) {
+      return;
+    }
+
+    addToast({
+      title: "Stock alert enabled",
+      message: `We will notify you when ${product.name} is back in stock.`,
+      tone: "success",
+    });
+  }
 
   return (
     <div className="section-shell space-y-10 py-10">
@@ -335,6 +349,15 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
             <div className="rounded-full bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
               {product.deliveryLabel ?? "Delivery estimate available"}
             </div>
+            <div
+              className={`rounded-full px-4 py-2 text-sm font-medium ${
+                isOutOfStock
+                  ? "bg-rose-50 text-rose-700"
+                  : "bg-sky-50 text-sky-700"
+              }`}
+            >
+              {isOutOfStock ? "Currently out of stock" : `${currentInventory} units available`}
+            </div>
             <VerifiedSellerBadge tier={sellerTier} />
             <SoldCounter soldCount={liveSignal?.soldCount24h ?? 0} />
           </div>
@@ -380,18 +403,25 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
             <div className="flex flex-wrap gap-3">
               <button
                 className="btn-primary"
+                disabled={isOutOfStock}
                 onClick={() => {
                   addItem(product);
-                  addToast(`${product.name} added to cart`);
+                  addToast({ title: `${product.name} added to cart`, tone: "success" });
                   triggerHaptic(12);
                 }}
               >
                 <ShoppingBag className="h-4 w-4" />
-                Add to Cart
+                {isOutOfStock ? "Out of stock" : "Add to Cart"}
               </button>
               <Link href="/checkout" className="btn-secondary">
                 Buy Now
               </Link>
+              {isOutOfStock ? (
+                <button className="btn-secondary" onClick={handleNotifyMe}>
+                  <Bell className="h-4 w-4" />
+                  Notify me
+                </button>
+              ) : null}
               <WishlistButton product={product} className="btn-secondary shadow-none" size={14} />
             </div>
           </div>
@@ -490,7 +520,7 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <ViewerCount productId={product.id} />
-            <LowStockBadge quantity={inventory?.availableQuantity ?? product.availableQuantity ?? 0} />
+            <LowStockBadge quantity={currentInventory} />
             {liveSignal?.priceDelta ? (
               <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
                 Live price advantage {formatCurrency(liveSignal.priceDelta, product.currency)}
@@ -523,6 +553,59 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
               </p>
             </div>
           </div>
+          {liveSession ? (
+            <div className="mt-6 rounded-[28px] border border-slate-100 bg-white p-4">
+              <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+                <div className="overflow-hidden rounded-[24px] bg-[linear-gradient(135deg,#111827_0%,#1d4ed8_55%,#0f766e_100%)] p-5 text-white">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]">
+                      {liveSession.status}
+                    </span>
+                    <span className="text-xs font-semibold uppercase tracking-[0.16em] text-white/75">
+                      {liveSession.viewerCount} watching
+                    </span>
+                  </div>
+                  <div className="mt-6 flex min-h-[11rem] items-center justify-center rounded-[20px] border border-white/10 bg-black/20">
+                    <div className="text-center">
+                      <Radio className="mx-auto h-8 w-8 text-white/90" />
+                      <p className="mt-3 text-lg font-semibold">{liveSession.title}</p>
+                      <p className="mt-1 text-sm text-white/75">Hosted by {liveSession.host}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="rounded-[24px] bg-[#fffaf5] p-5">
+                  <p className="text-sm font-semibold text-zenvy-ink">In-stream buying</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-600">
+                    Stay in the live session and add the featured product without losing the stream context.
+                  </p>
+                  <div className="mt-4 space-y-3">
+                    <div className="rounded-[18px] bg-white px-4 py-3 text-sm text-slate-600">
+                      Current offer price:{" "}
+                      <span className="font-semibold text-zenvy-ink">
+                        {formatCurrency(effectivePrice, product.currency)}
+                      </span>
+                    </div>
+                    <button
+                      className="btn-primary w-full"
+                      disabled={isOutOfStock}
+                      onClick={() => {
+                        addItem(product);
+                        addToast({
+                          title: "Added from live commerce",
+                          message: `${product.name} was added while the stream is active.`,
+                          tone: "success",
+                        });
+                        triggerHaptic(12);
+                      }}
+                    >
+                      <ShoppingBag className="h-4 w-4" />
+                      {isOutOfStock ? "Unavailable right now" : "Buy during stream"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             <div className="rounded-[24px] border border-slate-100 bg-white p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-zenvy-ink">
@@ -530,12 +613,17 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
                 Inventory snapshot
               </div>
               <p className="mt-2 text-sm text-slate-600">
-                {inventory?.availableQuantity ?? product.availableQuantity ?? 0} units available
+                {currentInventory} units available
                 {inventory?.reservedQuantity ? ` | ${inventory.reservedQuantity} reserved` : ""}
               </p>
               <p className="mt-1 text-xs text-slate-400">
                 {inventory?.warehouseCode ? `Warehouse ${inventory.warehouseCode}` : "Warehouse assignment updating"}
               </p>
+              {isOutOfStock ? (
+                <button className="mt-4 rounded-full bg-[#eef4ff] px-4 py-2 text-xs font-semibold text-[#1d4ed8]" onClick={handleNotifyMe}>
+                  Notify me when restocked
+                </button>
+              ) : null}
             </div>
             <div className="rounded-[24px] border border-slate-100 bg-white p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-zenvy-ink">

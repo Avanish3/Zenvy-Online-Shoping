@@ -51,8 +51,8 @@ export function ProductsPageClient() {
     const nextBrand = searchParams.get("brand")?.trim() || undefined;
     const nextQuery = searchParams.get("q")?.trim() || "";
     const nextRatingRaw = searchParams.get("rating");
-    const nextMinPriceRaw = searchParams.get("minPrice");
-    const nextMaxPriceRaw = searchParams.get("maxPrice");
+    const nextMinPriceRaw = searchParams.get("price_min") ?? searchParams.get("minPrice");
+    const nextMaxPriceRaw = searchParams.get("price_max") ?? searchParams.get("maxPrice");
     const nextSort = searchParams.get("sort")?.trim() || undefined;
     const nextView = searchParams.get("view")?.trim() || undefined;
 
@@ -63,7 +63,7 @@ export function ProductsPageClient() {
       rating: nextRatingRaw ? Number(nextRatingRaw) : undefined,
       minPrice: nextMinPriceRaw ? Number(nextMinPriceRaw) : undefined,
       maxPrice: nextMaxPriceRaw ? Number(nextMaxPriceRaw) : undefined,
-      sort: nextSort as SearchFilters["sort"],
+      sort: (nextSort === "popularity" ? "relevance" : nextSort) as SearchFilters["sort"],
       view: nextView as SearchFilters["view"],
     });
   }, [searchParams, selectedCategoryFromUrl, setFilters]);
@@ -117,10 +117,10 @@ export function ProductsPageClient() {
       next.set("rating", String(filters.rating));
     }
     if (filters.minPrice) {
-      next.set("minPrice", String(filters.minPrice));
+      next.set("price_min", String(filters.minPrice));
     }
     if (filters.maxPrice) {
-      next.set("maxPrice", String(filters.maxPrice));
+      next.set("price_max", String(filters.maxPrice));
     }
     if (filters.sort && filters.sort !== "relevance") {
       next.set("sort", filters.sort);
@@ -381,7 +381,7 @@ export function ProductsPageClient() {
                 className={`grid gap-5 ${
                   (filters.view ?? "grid") === "list"
                     ? "grid-cols-1"
-                    : "sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+                    : "grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
                 }`}
               >
                 {Array.from({
@@ -396,7 +396,7 @@ export function ProductsPageClient() {
                   className={`grid gap-5 ${
                     (filters.view ?? "grid") === "list"
                       ? "grid-cols-1"
-                      : "sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+                      : "grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
                   }`}
                 >
                   {visibleResults.map((product) => (

@@ -95,10 +95,28 @@ const moreMenuItems = [
   { label: "Advertise on ZENVY", href: "/seller/dashboard", icon: ShoppingBag },
 ];
 
-const megaMenuHighlights: Record<string, { title: string; links: Array<{ label: string; href: string }> }> = {
+const megaMenuHighlights: Record<
+  string,
+  {
+    title: string;
+    links: Array<{ label: string; href: string }>;
+    brands?: string[];
+    deal?: {
+      badge: string;
+      title: string;
+      href: string;
+    };
+  }
+> = {
   "For You": {
     title: "Fast-entry lanes",
     links: getBudgetQuickLinks(),
+    brands: ["ZENVY Select", "Nova", "Echo", "PureFlow", "UrbanWeave", "Drift"],
+    deal: {
+      badge: "AI pick",
+      title: "Daily shortlist built from budget-first intent",
+      href: "/products?sort=discount",
+    },
   },
   Electronics: {
     title: "Premium tech lanes",
@@ -107,6 +125,12 @@ const megaMenuHighlights: Record<string, { title: string; links: Array<{ label: 
       { label: "Work laptops", href: "/products?q=laptop" },
       { label: "Creator cameras", href: "/products?q=camera" },
     ],
+    brands: ["Apple", "Samsung", "OnePlus", "Sony", "Canon", "ASUS"],
+    deal: {
+      badge: "Hot drop",
+      title: "Live price movers across phones, audio, and creator gear",
+      href: "/products?category=electronics&sort=discount",
+    },
   },
   Fashion: {
     title: "Style edits",
@@ -115,6 +139,12 @@ const megaMenuHighlights: Record<string, { title: string; links: Array<{ label: 
       { label: "Festive looks", href: "/products?q=festive%20fashion" },
       { label: "Everyday carry", href: "/products?q=backpack" },
     ],
+    brands: ["Levi's", "Puma", "Nike", "Biba", "Roadster", "H&M"],
+    deal: {
+      badge: "Style edit",
+      title: "Complete-the-look pairings and fast-moving festive picks",
+      href: "/products?category=fashion",
+    },
   },
 };
 
@@ -483,21 +513,61 @@ export function Navbar() {
                 })}
                 </div>
                 {activeMegaMenu && megaMenuHighlights[activeMegaMenu] ? (
-                  <div className="absolute left-0 top-[calc(100%+0.85rem)] z-20 w-[32rem] rounded-[26px] border border-slate-200 bg-white p-5 shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
-                      {megaMenuHighlights[activeMegaMenu].title}
-                    </p>
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                      {megaMenuHighlights[activeMegaMenu].links.map((item) => (
+                  <div className="absolute left-0 top-[calc(100%+0.85rem)] z-20 w-[56rem] max-w-[calc(100vw-4rem)] rounded-[26px] border border-slate-200 bg-white p-5 shadow-[0_24px_70px_rgba(15,23,42,0.12)] transition-all duration-200">
+                    <div className="grid gap-6 lg:grid-cols-[1.3fr_0.9fr_0.8fr]">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
+                          {megaMenuHighlights[activeMegaMenu].title}
+                        </p>
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                          {megaMenuHighlights[activeMegaMenu].links.map((item) => (
+                            <Link
+                              key={item.label}
+                              href={item.href}
+                              prefetch={false}
+                              className="rounded-[18px] bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-[#eef4ff] hover:text-[#1d4ed8]"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
+                          Top brands
+                        </p>
+                        <div className="mt-4 grid grid-cols-2 gap-3">
+                          {(megaMenuHighlights[activeMegaMenu].brands ?? []).map((brand) => (
+                            <Link
+                              key={brand}
+                              href={`/products?brand=${encodeURIComponent(brand)}`}
+                              prefetch={false}
+                              className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-[#bfd1ff] hover:text-[#1d4ed8]"
+                            >
+                              {brand}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                      {megaMenuHighlights[activeMegaMenu].deal ? (
                         <Link
-                          key={item.label}
-                          href={item.href}
+                          href={megaMenuHighlights[activeMegaMenu].deal.href}
                           prefetch={false}
-                          className="rounded-[18px] bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-[#eef4ff] hover:text-[#1d4ed8]"
+                          className="rounded-[24px] bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_55%,#f97316_100%)] p-5 text-white transition hover:-translate-y-0.5"
                         >
-                          {item.label}
+                          <span className="rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/85">
+                            {megaMenuHighlights[activeMegaMenu].deal.badge}
+                          </span>
+                          <p className="mt-4 text-lg font-semibold leading-7">
+                            {megaMenuHighlights[activeMegaMenu].deal.title}
+                          </p>
+                          <p className="mt-3 text-sm text-white/80">
+                            Open a cleaner curated lane with stronger trust and deal cues.
+                          </p>
                         </Link>
-                      ))}
+                      ) : (
+                        <div />
+                      )}
                     </div>
                   </div>
                 ) : null}

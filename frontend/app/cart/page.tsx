@@ -2,20 +2,33 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Minus, Plus, ShoppingBag, TicketPercent, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Minus,
+  Plus,
+  ShoppingBag,
+  TicketPercent,
+  Trash2,
+  Truck,
+} from "lucide-react";
 import { ProductVisual } from "@/components/ProductVisual";
 import { formatCurrency } from "@/lib/formatters";
+import { getDeliveryMessage } from "@/lib/productSignals";
+import { getEmiPlans } from "@/services/experienceService";
 import { useCartStore } from "@/store/cartStore";
 
 export default function CartPage() {
   const { items, couponCode, updateQuantity, removeItem, applyCoupon, subtotal } =
     useCartStore();
   const [draftCoupon, setDraftCoupon] = useState(couponCode ?? "");
+  const [showEmiPlans, setShowEmiPlans] = useState(false);
 
   const cartSubtotal = subtotal();
   const shipping = items.length ? 149 : 0;
   const discount = couponCode ? Math.round(cartSubtotal * 0.08) : 0;
   const total = Math.max(cartSubtotal - discount + shipping, 0);
+  const emiPlans = useMemo(() => getEmiPlans(total), [total]);
   const groupedLabel = useMemo(
     () => Array.from(new Set(items.map((item) => item.product.sellerName).filter(Boolean))).join(", "),
     [items],
@@ -75,6 +88,10 @@ export default function CartPage() {
                     <p className="mt-1 text-sm text-slate-500">
                       {item.product.brand ?? item.product.category}
                     </p>
+                    <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+                      <Truck className="h-3.5 w-3.5" />
+                      {getDeliveryMessage(item.product)}
+                    </div>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
                       {item.product.description}
                     </p>
@@ -168,6 +185,39 @@ export default function CartPage() {
           <p className="mt-2 text-3xl font-semibold text-zenvy-ink">
             {formatCurrency(total)}
           </p>
+        </div>
+        <div className="mt-6 rounded-[24px] border border-slate-100 bg-white p-4">
+          <button
+            className="flex w-full items-center justify-between gap-3 text-left"
+            onClick={() => setShowEmiPlans((current) => !current)}
+          >
+            <div>
+              <p className="text-sm font-semibold text-zenvy-ink">EMI breakdown</p>
+              <p className="mt-1 text-xs text-slate-500">
+                Expand monthly options before checkout
+              </p>
+            </div>
+            {showEmiPlans ? (
+              <ChevronUp className="h-4 w-4 text-slate-500" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-slate-500" />
+            )}
+          </button>
+          {showEmiPlans ? (
+            <div className="mt-4 grid gap-2">
+              {emiPlans.map((plan) => (
+                <div key={plan.months} className="rounded-[18px] bg-slate-50 px-3 py-3 text-sm">
+                  <p className="font-semibold text-zenvy-ink">{plan.months} months</p>
+                  <p className="mt-1 text-slate-600">
+                    {formatCurrency(plan.monthlyAmount)} / month
+                  </p>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Total {formatCurrency(plan.totalAmount)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
         <Link href="/checkout" className="btn-primary mt-6 w-full">
           Proceed to checkout

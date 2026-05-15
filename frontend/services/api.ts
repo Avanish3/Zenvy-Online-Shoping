@@ -5,6 +5,7 @@ const API_BASE_URL =
   (typeof window !== "undefined"
     ? `${window.location.protocol}//${window.location.hostname}:8080`
     : "http://localhost:8080");
+const HAS_EXPLICIT_API_BASE_URL = Boolean(process.env.NEXT_PUBLIC_API_BASE_URL);
 
 export const API = axios.create({
   baseURL: API_BASE_URL,
@@ -50,6 +51,11 @@ export async function withFallback<T>(
   request: () => Promise<T>,
   fallback: T,
 ): Promise<T> {
+  // Skip server-side network waits during local builds when no API base URL was provided.
+  if (typeof window === "undefined" && !HAS_EXPLICIT_API_BASE_URL) {
+    return fallback;
+  }
+
   try {
     return await request();
   } catch {

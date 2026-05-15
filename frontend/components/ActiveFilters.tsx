@@ -25,7 +25,7 @@ export function ActiveFilters({
             className="rounded-full bg-[#eef4ff] px-3 py-2 text-xs font-semibold text-[#1d4ed8]"
             onClick={chip.onRemove}
           >
-            {chip.label} ×
+            {chip.label} x
           </button>
         ))}
         {chips.length ? (
